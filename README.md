@@ -1,4 +1,1 @@
-# MongoDB
-这是第一次创建的项目
-
-Hello World!
+# 基于nodejs环境下开发的使用Mongoose语言结合MongoDB和express开发的增删改查系统
