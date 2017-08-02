@@ -6,7 +6,8 @@ var bodyParser=require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 db.on("error",function(err){
     console.log("ERROR"+err);
-})
+});
+
 db.once("open",function(){
     console.log("数据库连接成功！");
 })
