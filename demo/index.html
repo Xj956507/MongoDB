@@ -6,20 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MongoDB简单增删改查</title>
     <link href="bootstrap.min.css" rel="stylesheet">
-    <style>
-        *{
-            margin: 0;
-            padding: 0;
-            list-style: none;
-        }
-        .con{
-            width: 800px;
-            height: 600px;
-            margin: 20px auto;
-            padding: 5px;
-            border: 1px solid skyblue;
-        }
-    </style>
   </head>
   <body>
       <div class="con">
@@ -28,8 +14,17 @@
             <button type="button" class="btn btn-warning updateBtn" data-toggle="modal" data-target="#exampleModal2" disabled="disabled">修改</button>
             <button type="button" class="btn btn-danger deleteBtn" data-toggle="modal" data-target="#exampleModal3" disabled="disabled">删除</button>
             <button type="button" class="btn btn-primary searchBtnSave">查询数据</button>
-            <input type="text" class="searchData">
-     
+            <span>根据年龄进行查询：</span>
+            <label for="#searchDataByAge" id="searchByAgeText">this.age</label>
+            <select class="selectOptions">
+                <option>>=</option>
+                <option>></option>
+                <option>==</option>
+                <option><</option>
+                <option><=</option>
+            </select>
+            <input type="text" id="searchDataByAge" class="searchData">
+        
             <!--添加模态框  -->
             <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
                 <div class="modal-dialog" role="document">
@@ -149,6 +144,7 @@
                 this.select();
                 this.update();
                 this.delete();
+                this.focus();
             },
             //进页面加载全部数据
             initData:function(){
@@ -165,6 +161,17 @@
                     }
                 })
             },
+            focus:function(){
+                var _sel=this;
+                // 当清空数据内容时，应该重新读取数据库值
+                $("#searchDataByAge").on("blur",function(){
+                    $(this).val()
+                    if($(this).val()==""){
+                        $("#mainbody").html(' ')
+                        _sel.initData();
+                    }
+                })
+            },
             //添加数据
             add:function(){
                 var _sel=this;
@@ -174,33 +181,41 @@
                     var age=$("#recipient-age").val();
                     var phone=$("#recipient-phone").val();
                     var address=$("#recipient-address").val();
-                    $.ajax({
-                        url:"http://127.0.0.1:8052/create",
-                        type:'get',
-                        data:{
-                            name:name,
-                            appellation:appellation,
-                            age:age,
-                            phone:phone,
-                            address:address
-                        },
-                        success:function(res){
-                            $("#exampleModal1").modal("toggle");
-                            $(".add1").val(" ")
-                            $('#mainbody').html('')
-                            _sel.initData();
-                        }
-                    })
+                    var pattern = /0?(13|14|15|18)[0-9]{9}/;
+                    if(pattern.test(phone)){
+                        $.ajax({
+                            url:"http://127.0.0.1:8052/create",
+                            type:'get',
+                            data:{
+                                name:name,
+                                appellation:appellation,
+                                age:age,
+                                phone:phone,
+                                address:address
+                            },
+                            success:function(res){
+                                $("#exampleModal1").modal("toggle");
+                                $(".add1").val(" ")
+                                $('#mainbody').html('')
+                                _sel.initData();
+                            }
+                        })
+                    }else{
+                        alert("请输入正确的手机号！")
+                    }
+                    
                 }) 
             },
             select:function(){
                 $(".searchBtnSave").on("click",function(){
                     var js=$(".searchData").val();
+                    var html=$("#searchByAgeText").html();
+                    var pd=$(".selectOptions").val();
                     $.ajax({
                         url:"http://127.0.0.1:8052/readByCustomize",
                         type:'get',
                         data:{
-                            js:js
+                            js:html+pd+js
                         },
                         success:function(res){
                             $("#mainbody").html(' ')
@@ -218,9 +233,10 @@
                 var _sel=this;
                 //激活按钮事件
                 $('#mainbody').on('click',function(e){
+                
                     if(e.target.checked){
-                        $(".updateBtn").attr("disabled",false)
-                        $(".deleteBtn").attr("disabled",false)
+                        $(".updateBtn").removeAttr("disabled")
+                        $(".deleteBtn").removeAttr("disabled")
                         _sel.changeID=$(e.target).attr("data-id");
                     }
                 })
