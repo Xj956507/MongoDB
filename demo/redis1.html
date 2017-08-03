@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MongoDB简单增删改查</title>
+    <link href="bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+      <div class="con">
+        <div class="header">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#exampleModal1">添加</button>
+            <button type="button" class="btn btn-primary searchBtnSave">查询数据</button>
+            <!--添加模态框  -->
+            <div class="modal fade" id="exampleModal1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="exampleModalLabel">确认进行添加操作吗？</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="recipient-name" class="control-label">姓名:</label>
+                                    <input type="text" class="form-control add1" id="recipient-name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-appellation" class="control-label">称谓:</label>
+                                    <input type="text" class="form-control add1" id="recipient-appellation">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-age" class="control-label">年龄:</label>
+                                    <input type="text" class="form-control add1" id="recipient-age">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-phone" class="control-label">电话号码:</label>
+                                    <input type="text" class="form-control add1" id="recipient-phone">
+                                </div>
+                                <div class="form-group">
+                                    <label for="recipient-address" class="control-label">工作单位:</label>
+                                    <input type="text" class="form-control add1" id="recipient-address">
+                                </div>
+                            </form>
+                        </div>  
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary addData">保存</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+    <div class="widget-content padded clearfix">  
+        <table id="AddFamily" class="table table-bordered table-striped" width="1000px" border="0" cellspacing="0" cellpadding="0" style="margin: 0 auto">
+            <thead>  
+                <th class="check-header hidden-xs"><input id="checkAll" name="checkAll" type="checkbox"></th>
+                <th>姓名</th>  
+                <th>称谓 </th>  
+                <th>年龄 </th>  
+                <th>电话号码 </th>  
+                <th>家庭住址</th>  
+            </thead>  
+            <tbody id="mainbody"></tbody>  
+        </table>  
+    </div>
+      </div>
+      
+    <script src="jquery.js"></script>
+    <script src="bootstrap.min.js"></script>
+    <script>
+        var dbCon={
+            init:function(){
+                this.initData();
+                this.add();
+                this.select();
+            },
+            //进页面加载全部数据
+            initData:function(){
+                $.ajax({
+                    url:"http://127.0.0.1:8002/read",
+                    type:'get',
+                    data:{},
+                    success:function(res){
+                        var html='';
+                        html+='<tr><td><input name="checkbox" type="checkbox"></td><td data-field="Name">'+res.data.name+'</td><td data-field="RelationShip">'+res.data.appellation+'</td><td data-field="Age">'+res.data.age+'</td><td>'+res.data.phone+'</td><td>'+res.data.address+'</td></tr>'
+                        $("#mainbody").append(html)
+                    }
+                })
+            },
+            select:function(){
+                var _sel=this;
+                $(".searchBtnSave").on("click",function(){
+                    _sel.initData()
+                })
+            },
+            //添加数据
+            add:function(){
+                var _sel=this;
+                $('#exampleModal1').on("click",".addData",function(){
+                    var name=$("#recipient-name").val();
+                    var appellation=$("#recipient-appellation").val();
+                    var age=$("#recipient-age").val();
+                    var phone=$("#recipient-phone").val();
+                    var address=$("#recipient-address").val();
+                    var pattern = /0?(13|14|15|18)[0-9]{9}/;
+                    if(pattern.test(phone)){
+                        $.ajax({
+                            url:"http://127.0.0.1:8002/add",
+                            type:'get',
+                            data:{
+                                name:name,
+                                appellation:appellation,
+                                age:age,
+                                phone:phone,
+                                address:address
+                            },
+                            success:function(res){
+                                $("#exampleModal1").modal("toggle");
+                                $(".add1").val(" ")
+                                $('#mainbody').html('')
+                                _sel.initData();
+                            }
+                        })
+                    }else{
+                        alert("请输入正确的手机号！")
+                    }
+                }) 
+            }
+        };
+    dbCon.init();
+
+    </script>
+  </body>
+</html>
