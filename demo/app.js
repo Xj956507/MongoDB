@@ -18,8 +18,7 @@ app.all('*',function (req, res, next) {
 
     if (req.method == 'OPTIONS') {
         res.send(200); /让options请求快速返回/
-    }
-    else {
+    }else {
         next();
     }
 });
@@ -36,7 +35,8 @@ var Schema=new mongoose.Schema({
     versionKey:false
 })
 
-var personModel=db.model("people",Schema);
+// 第三个参数为数据库表
+var personModel=db.model("people",Schema,"Students");
 
 // 增加数据
 app.get('/create',function(req,res){
@@ -51,21 +51,21 @@ app.get('/create',function(req,res){
         if(err){
             console.log('ERROR'+err)
         }else{
-            console.log("保存成功！")
+            res.send("创建成功！")
         }
-    })
-    res.send("创建成功！")
+    })  
 })
 
-// 删除数据
+// 删除数据(根据数据库自己创建的_id进行操作)
 app.get("/delete",function(req,res){
     var ObjectID = require('mongodb').ObjectID;
     personModel.findByIdAndRemove({_id: new ObjectID(req.query.id)},function(err,docs){
         if(err){
             console.log("删除失败"+err)
+        }else{
+            res.send("删除成功！")
         }
     })
-    res.send("删除成功！")
 })
 
 
@@ -85,10 +85,9 @@ app.post('/update',urlencodedParser,function(req,res){
         if(err){
             console.log("修改失败")
         }else{
-            console.log("修改成功！")
+            res.send("修改成功！")
         }
-    });    
-    res.send("修改成功！")
+    });     
 })
 
 //通过查询数据
@@ -99,9 +98,8 @@ app.get('/readById',function(req,res){
         if(err){
             console.log("查询失败")
         }else{
-            console.log("查询结果"+docs)
+             res.send("查询成功!"+docs)
         }
-        res.send("查询成功!")
     })
 })
 
